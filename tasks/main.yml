@@ -1,0 +1,21 @@
+---
+# tasks file for ansible-role-bettercap
+
+- name: Install Bettercap packages
+  apt:
+    name: "{{ bettercap_packages }}"
+
+# Kali package uses the directory /usr/share/bettercap, but Bettercap expects to use /usr/local/share/bettercap for the ui
+- name: Symlink for Kali directory structure
+  file:
+    src: /usr/share/bettercap
+    dest: /usr/local/share/bettercap
+    owner: root
+    group: root
+    state: link
+
+- name: Update UI caplet
+  command: bettercap -eval "ui.update; q"
+  register: ui_update
+  changed_when: false
+  failed_when: '"ui installation complete" not in ui_update.stdout'
